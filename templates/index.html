@@ -8,37 +8,198 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='style.css') }}"
     />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
   </head>
   <body>
+    <nav class="navbar">
+      <div class="nav-container">
+        <h1 class="nav-title">
+          <i class="fab fa-reddit-alien"></i>
+          Reddit Sentiment Tracker
+        </h1>
+        <div class="nav-links">
+          <a href="#" class="nav-link active" data-section="analyzer"
+            >Analyzer</a
+          >
+          <a href="#" class="nav-link" data-section="trending">Trending</a>
+          <a href="#" class="nav-link" data-section="about">About</a>
+        </div>
+      </div>
+    </nav>
+
     <div class="container">
-      <h1>Reddit Sentiment Tracker</h1>
+      <!-- Analyzer Section -->
+      <section id="analyzer-section" class="section active">
+        <div class="hero">
+          <h2>Analyze Reddit Sentiment</h2>
+          <p>Get real-time insights into the emotional tone of any subreddit</p>
+        </div>
 
-      <form id="subreddit-form">
-        <input
-          type="text"
-          id="subreddit"
-          name="subreddit"
-          placeholder="Enter subreddit (e.g., AskReddit)"
-          required
-        />
-        <button type="submit">Analyze</button>
-      </form>
+        <div class="search-container">
+          <form id="subreddit-form">
+            <div class="input-group">
+              <i class="fas fa-search"></i>
+              <input
+                type="text"
+                id="subreddit"
+                name="subreddit"
+                placeholder="Enter subreddit (e.g., AskReddit)"
+                required
+              />
+              <button type="submit">
+                <i class="fas fa-chart-line"></i>
+                Analyze
+              </button>
+            </div>
+          </form>
+        </div>
 
-      <div id="loading" style="display: none">Loading...</div>
+        <div id="loading" class="loading-spinner" style="display: none">
+          <div class="spinner"></div>
+          <p>Analyzing sentiment...</p>
+        </div>
 
-      <div id="results">
-        <h2>Sentiment Results</h2>
-        <canvas id="sentimentChart"></canvas>
+        <div id="results" class="results-container">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="fas fa-comments"></i>
+              </div>
+              <div class="stat-info">
+                <h3 id="total-posts">0</h3>
+                <p>Total Posts</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="fas fa-users"></i>
+              </div>
+              <div class="stat-info">
+                <h3 id="active-users">0</h3>
+                <p>Active Users</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="fas fa-clock"></i>
+              </div>
+              <div class="stat-info">
+                <h3 id="last-updated">--</h3>
+                <p>Last Updated</p>
+              </div>
+            </div>
+          </div>
 
-        <h2>Word Cloud</h2>
-        <img id="wordcloud" src="" alt="Word Cloud" />
-      </div>
+          <div class="chart-container">
+            <div class="chart-section">
+              <h3>Sentiment Distribution</h3>
+              <canvas id="sentimentChart"></canvas>
+            </div>
+            <div class="chart-section">
+              <h3>Trending Keywords</h3>
+              <div id="keywords-container" class="keywords-grid"></div>
+            </div>
+          </div>
 
-      <div id="ai-summary">
-        <h2>AI Summary</h2>
-        <p id="summary-text">Click analyze to get insights!</p>
-      </div>
+          <div class="posts-section">
+            <h3>Recent Posts Sample</h3>
+            <div id="sample-posts" class="posts-grid"></div>
+          </div>
+        </div>
+
+        <div id="ai-summary" class="summary-section">
+          <h3><i class="fas fa-brain"></i> AI Summary</h3>
+          <div class="summary-card">
+            <p id="summary-text">Click analyze to get insights!</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Trending Section -->
+      <section id="trending-section" class="section">
+        <div class="hero">
+          <h2>Trending Subreddits</h2>
+          <p>Discover what's popular right now</p>
+        </div>
+
+        <div id="trending-grid" class="trending-grid">
+          {% for sub in trending %}
+          <div class="trending-card">
+            <div class="trending-header">
+              <h3>r/{{ sub.name }}</h3>
+              <span class="sentiment-badge sentiment-{{ sub.sentiment }}">
+                {{ sub.sentiment }}
+              </span>
+            </div>
+            <div class="trending-stats">
+              <span><i class="fas fa-fire"></i> {{ sub.posts }} posts</span>
+              <button class="analyze-btn" data-subreddit="{{ sub.name }}">
+                <i class="fas fa-chart-line"></i> Analyze
+              </button>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </section>
+
+      <!-- About Section -->
+      <section id="about-section" class="section">
+        <div class="hero">
+          <h2>About Reddit Sentiment Tracker</h2>
+          <p>Understanding the pulse of Reddit communities</p>
+        </div>
+
+        <div class="about-content">
+          <div class="feature-grid">
+            <div class="feature-card">
+              <i class="fas fa-search"></i>
+              <h3>Real-time Analysis</h3>
+              <p>
+                Get instant sentiment analysis of any subreddit with up-to-date
+                data
+              </p>
+            </div>
+            <div class="feature-card">
+              <i class="fas fa-chart-pie"></i>
+              <h3>Visual Insights</h3>
+              <p>
+                Beautiful charts and visualizations to understand community
+                sentiment
+              </p>
+            </div>
+            <div class="feature-card">
+              <i class="fas fa-brain"></i>
+              <h3>AI-Powered</h3>
+              <p>
+                Advanced natural language processing for accurate sentiment
+                classification
+              </p>
+            </div>
+            <div class="feature-card">
+              <i class="fas fa-mobile-alt"></i>
+              <h3>Responsive Design</h3>
+              <p>Works seamlessly across all devices and screen sizes</p>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
+
+    <footer class="footer">
+      <div class="footer-content">
+        <p>
+          &copy; 2024 Reddit Sentiment Tracker. Built with Flask & JavaScript.
+        </p>
+        <div class="social-links">
+          <a href="#"><i class="fab fa-github"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+          <a href="#"><i class="fab fa-linkedin"></i></a>
+        </div>
+      </div>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
