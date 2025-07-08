@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reddit Sentiment Analyzer</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Reddit Sentiment Tracker</h1>
+
+      <form id="subreddit-form">
+        <input
+          type="text"
+          id="subreddit"
+          name="subreddit"
+          placeholder="Enter subreddit (e.g., AskReddit)"
+          required
+        />
+        <button type="submit">Analyze</button>
+      </form>
+
+      <div id="loading" style="display: none">Loading...</div>
+
+      <div id="results">
+        <h2>Sentiment Results</h2>
+        <canvas id="sentimentChart"></canvas>
+
+        <h2>Word Cloud</h2>
+        <img id="wordcloud" src="" alt="Word Cloud" />
+      </div>
+
+      <div id="ai-summary">
+        <h2>AI Summary</h2>
+        <p id="summary-text">Click analyze to get insights!</p>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+  </body>
+</html>
