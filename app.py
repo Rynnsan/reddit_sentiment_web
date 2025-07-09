@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import praw
 from datetime import datetime
 import random
+from nlp_utils import get_sentiment_label
 
 load_dotenv()
 
@@ -15,6 +16,20 @@ reddit = praw.Reddit(
     client_secret=os.getenv("CLIENT_SECRET"),
     user_agent=os.getenv("USER_AGENT"),
 )
+def get_sentiment_label(text):
+    text = text.lower()
+    positive_words = ['good', 'great', 'awesome', 'happy', 'love', 'excellent', 'nice']
+    negative_words = ['bad', 'terrible', 'hate', 'awful', 'worst', 'sad', 'angry']
+    
+    pos_count = sum(word in text for word in positive_words)
+    neg_count = sum(word in text for word in negative_words)
+    
+    if pos_count > neg_count:
+        return "positive"
+    elif neg_count > pos_count:
+        return "negative"
+    else:
+        return "neutral"
 
 # Örnek trending subreddits verisi
 TRENDING_SUBREDDITS = [
@@ -58,23 +73,30 @@ def suggest_subreddits():
         return jsonify(filtered_suggestions[:5])
 
 @app.route("/analyze/<subreddit>")
+@app.route("/analyze/<subreddit>")
 def analyze(subreddit):
     try:
         subreddit_obj = reddit.subreddit(subreddit)
         posts = []
+        positive, neutral, negative = 0, 0, 0
         
-        # Subreddit'in var olup olmadığını kontrol et
+        # Subreddit var mı kontrol et
         try:
-            subreddit_obj.id  # Bu satır subreddit'in var olup olmadığını kontrol eder
+            subreddit_obj.id
         except Exception:
             return jsonify({"error": f"Subreddit '{subreddit}' not found or private"}), 404
         
-        # Hot posts'ları al
+        # Hot postları al ve sentiment hesapla
         for post in subreddit_obj.hot(limit=10):
-            # Rastgele sentiment değeri ata (gerçek sentiment analizi için değiştirilebilir)
-            sentiment_options = ["positive", "neutral", "negative"]
-            sentiment = random.choice(sentiment_options)
-            
+            sentiment = get_sentiment_label(post.title)
+
+            if sentiment == "positive":
+                positive += 1
+            elif sentiment == "negative":
+                negative += 1
+            else:
+                neutral += 1
+
             posts.append({
                 "title": post.title,
                 "score": post.score,
@@ -84,19 +106,19 @@ def analyze(subreddit):
                 "sentiment": sentiment
             })
 
-        # Örnek sentiment değerleri
-        positive = random.randint(25, 50)
-        negative = random.randint(15, 35)
-        neutral = 100 - positive - negative
+        total = positive + neutral + negative or 1
+        positive = round((positive / total) * 100)
+        neutral = round((neutral / total) * 100)
+        negative = 100 - positive - neutral
 
-        # Örnek trending keywords
+        # Trending keywords örnek
         sample_keywords = ["technology", "update", "news", "discussion", "help", "question", "opinion", "review"]
-        trending_keywords = random.sample(sample_keywords, min(5, len(sample_keywords)))
+        trending_keywords = sample_keywords[:5]
 
-        # Subreddit istatistikleri
+        # Abone ve aktif kullanıcı bilgisi (aktif kullanıcı tahmini)
         try:
             subscribers = subreddit_obj.subscribers
-            active_users = random.randint(100, 5000)  # Aktif kullanıcı sayısı tahmin
+            active_users = random.randint(100, 5000)
         except:
             subscribers = "N/A"
             active_users = "N/A"
